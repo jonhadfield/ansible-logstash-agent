@@ -1,0 +1,42 @@
+---
+# Online Install
+- name: online install | download logstash
+  get_url: url=https://download.elasticsearch.org/logstash/logstash/logstash-{{ logstash_agent_version }}.tar.gz dest=/var/tmp/logstash-{{ logstash_agent_version }}.tar.gz
+  when: logstash_agent_online_install
+- name: online install | extract logstash installation
+  unarchive: src=/var/tmp/logstash-{{ logstash_agent_version }}.tar.gz copy=no dest={{ logstash_agent_base_install_dir }}/ mode=0700 creates={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/bin/logstash
+  notify:
+    - restart logstash-agent
+  when: logstash_agent_online_install
+
+# Offline Install
+- name: offline install | copy and extract logstash installation
+  unarchive: src={{ logstash_agent_installer_path }}/logstash-{{ logstash_agent_version }}.tar.gz dest={{ logstash_agent_base_install_dir }}/ mode=0700 creates={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/bin/logstash
+  notify:
+    - restart logstash-agent
+  when: not logstash_agent_online_install
+
+# Configure
+- name: install logstash agent startup script
+  template: src=logstash-agent-sysvinit.j2 dest=/etc/init.d/logstash-agent owner=root group=root mode=0755
+  notify:
+    - restart logstash-agent
+- name: install logstash agent configuration
+  template: src=logstash-agent.conf.j2 dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/logstash-agent.conf owner=root group=root mode=0755
+  notify:
+    - restart logstash-agent
+- name: grant directory permissions to logstash agent user for installation directory
+  file: path={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} owner=root group=root recurse=true
+- name: create logstash-agent logs directory
+  file: dest={{ logstash_agent_base_logs_dir }}/logstash-agent state=directory
+- name: grant directory permissions to logstash agent user for logs directory
+  file: path={{ logstash_agent_base_logs_dir }}/logstash-agent owner=root group=root recurse=true
+- name: create symlink to logstash agent installation
+  file: src={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} path={{ logstash_agent_base_install_dir }}/logstash-agent state=link
+# FIX: Patch for 1.4.0 issue when overriding JAVA_HOME (See https://logstash.jira.com/browse/LOGSTASH-1984)
+- name: patching logstash 1.4.0 bug LOGSTASH-1984
+  copy: src=logstash.lib.sh dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/bin/logstash.lib.sh owner=root group=root mode=0755
+  when: logstash_agent_version == "1.4.0" and logstash_agent_java_home
+# Run
+- name: ensure logstash agent is started and starts on boot
+  service: name=logstash-agent state=started enabled=yes

@@ -1,0 +1,84 @@
+#!/bin/bash
+#
+# logstash agent
+#
+# chkconfig:   2345 80 20
+# description: Starts and stops a single logstash agent instance on this system
+#
+
+### BEGIN INIT INFO
+# Provides: Logstash 1.4
+# Required-Start: $network $named
+# Required-Stop: $network $named
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: This service manages logstash agent
+# Description: 
+### END INIT INFO
+
+export HOME={{ logstash_agent_base_install_dir }}/logstash-agent
+{% if logstash_agent_java_home is defined %}
+export JAVA_HOME={{ logstash_agent_java_home }}
+{% endif %}
+
+checkJava() {
+    if [ -x "$JAVA_HOME/bin/java" ]; then
+        JAVA="$JAVA_HOME/bin/java"
+    else
+        JAVA=`which java`
+    fi
+
+    if [ ! -x "$JAVA" ]; then
+        echo "Could not find any executable java binary. Please install java in your PATH or set JAVA_HOME"
+        exit 1
+    fi
+}
+
+
+check_running () {
+    APP_RUNNING=`ps -ef | grep logstash-agent.conf | grep -v grep | wc -l`
+    return $APP_RUNNING
+}
+
+case "$1" in
+'start')
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+    echo "logstash-agent already running."
+else
+    checkJava
+    {{ logstash_agent_base_install_dir }}/logstash-agent/bin/logstash -f {{ logstash_agent_base_install_dir }}/logstash-agent/logstash-agent.conf > {{ logstash_agent_base_logs_dir }}/logstash-agent/logstash-agent.log 2>&1 &
+fi
+;;
+'stop')
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+    /usr/bin/kill -9 `ps auxww |grep logstash-agent.conf | grep -v grep | awk '{print $2}'`
+else
+    echo "logstash-agent not running."
+    exit 1;
+fi
+;;
+'status')
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+    echo "logstash-agent is running..."
+    exit 0;
+else
+    echo "logstash-agent is dead."
+    exit 1;
+fi
+;;
+'restart')
+/etc/init.d/logstash-agent stop
+/etc/init.d/logstash-agent start
+;;
+*)
+echo "Usage: $0 { start | stop | status | restart }"
+;;
+esac
+exit 0
+EOF
