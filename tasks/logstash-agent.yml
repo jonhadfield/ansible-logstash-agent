@@ -1,4 +1,12 @@
 ---
+# Prereqs
+- name: create logstash agent group
+  group: name={{ logstash_agent_group }} state=present
+  when: logstash_agent_group != "root"
+- name: create logstash agent user
+  user: name={{ logstash_agent_user }} state=present createhome=no shell=/bin/bash group={{ logstash_agent_group }}
+  when: logstash_agent_user != "root"
+
 # Online Install
 - name: online install | download logstash
   get_url: url=https://download.elasticsearch.org/logstash/logstash/logstash-{{ logstash_agent_version }}.tar.gz dest=/var/tmp/logstash-{{ logstash_agent_version }}.tar.gz
@@ -22,20 +30,20 @@
   notify:
     - restart logstash-agent
 - name: install logstash agent configuration
-  template: src=logstash-agent.conf.j2 dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/logstash-agent.conf owner=root group=root mode=0755
+  template: src=logstash-agent.conf.j2 dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/logstash-agent.conf owner={{ logstash_agent_user }} group={{ logstash_agent_group }} mode=0755
   notify:
     - restart logstash-agent
 - name: grant directory permissions to logstash agent user for installation directory
-  file: path={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} owner=root group=root recurse=true
+  file: path={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} owner={{ logstash_agent_user }} group={{ logstash_agent_group }} recurse=true
 - name: create logstash-agent logs directory
   file: dest={{ logstash_agent_base_logs_dir }}/logstash-agent state=directory
 - name: grant directory permissions to logstash agent user for logs directory
-  file: path={{ logstash_agent_base_logs_dir }}/logstash-agent owner=root group=root recurse=true
+  file: path={{ logstash_agent_base_logs_dir }}/logstash-agent owner={{ logstash_agent_user }} group={{ logstash_agent_group }} recurse=true
 - name: create symlink to logstash agent installation
   file: src={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} path={{ logstash_agent_base_install_dir }}/logstash-agent state=link
 # FIX: Patch for 1.4.0 issue when overriding JAVA_HOME (See https://logstash.jira.com/browse/LOGSTASH-1984)
 - name: patching logstash 1.4.0 bug LOGSTASH-1984
-  copy: src=logstash.lib.sh dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/bin/logstash.lib.sh owner=root group=root mode=0755
+  copy: src=logstash.lib.sh dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/bin/logstash.lib.sh owner={{ logstash_agent_user }} group={{ logstash_agent_user }} mode=0755
   when: logstash_agent_version == "1.4.0" and logstash_agent_java_home
 # Run
 - name: ensure logstash agent is started and starts on boot

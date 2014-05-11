@@ -21,9 +21,9 @@ Role Variables
     logstash_agent_redis_hosts:                             # Which redis servers to ship to
         - redis1
         - redis2
-        - redis3
     logstash_agent_java_home:                               # Specify java rather than try to detect
-
+    logstash_agent_user: root                               # User that owns the files and the process will run as
+    logstash_agent_group: root                              # Group ownership for the files
 
 Dependencies
 ------------

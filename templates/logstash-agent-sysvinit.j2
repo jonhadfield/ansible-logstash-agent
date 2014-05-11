@@ -36,8 +36,8 @@ export JAVA_HOME={{ logstash_agent_java_home }}
 {% endif %}
 
 # See contents of file named in $DEFAULT for comments
-LS_USER=root
-LS_GROUP=root
+LS_USER={{ logstash_agent_user }}
+LS_GROUP={{ logstash_agent_group }}
 LS_HOME={{ logstash_agent_base_install_dir }}/logstash-agent
 LS_HEAP_SIZE="500m"
 LS_JAVA_OPTS="-Djava.io.tmpdir=${LS_HOME}"

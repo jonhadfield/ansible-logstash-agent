@@ -9,6 +9,8 @@ logstash_agent_redis_hosts:
     - redis1
     - redis2
 logstash_agent_java_home: /apps/jre1.7.0_55
+logstash_agent_user: root
+logstash_agent_group: root
 
 # JAVA
 java_online_install: false
