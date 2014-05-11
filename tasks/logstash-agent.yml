@@ -11,7 +11,7 @@
 
 # Offline Install
 - name: offline install | copy and extract logstash installation
-  unarchive: src={{ logstash_agent_installer_path }}/logstash-{{ logstash_agent_version }}.tar.gz dest={{ logstash_agent_base_install_dir }}/ mode=0700 creates={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/bin/logstash
+  unarchive: src={{ logstash_agent_installer_path }} dest={{ logstash_agent_base_install_dir }}/ mode=0700 creates={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/bin/logstash
   notify:
     - restart logstash-agent
   when: not logstash_agent_online_install
