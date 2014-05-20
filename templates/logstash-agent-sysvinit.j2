@@ -42,7 +42,8 @@ LS_HOME={{ logstash_agent_base_install_dir }}/logstash-agent
 LS_HEAP_SIZE="500m"
 LS_JAVA_OPTS="-Djava.io.tmpdir=${LS_HOME}"
 LS_LOG_FILE={{ logstash_agent_base_logs_dir }}/logstash-agent/$NAME.log
-LS_CONF_DIR={{ logstash_agent_base_install_dir }}/logstash-agent/logstash-agent.conf
+LS_DAEMON_LOG_FILE={{ logstash_agent_base_logs_dir }}/logstash-agent/${NAME}_daemon.log
+LS_CONF_DIR={{ logstash_agent_base_install_dir }}/logstash-agent/conf
 LS_OPEN_FILES=16384
 LS_NICE=19
 LS_OPTS=""
@@ -58,7 +59,7 @@ fi
 PID_FILE=${LS_PIDFILE}
 
 DAEMON="{{ logstash_agent_base_install_dir }}/logstash-agent/bin/logstash"
-DAEMON_OPTS="agent -f ${LS_CONF_DIR} -l ${LS_LOG_FILE} ${LS_OPTS}"
+DAEMON_OPTS="agent -f ${LS_CONF_DIR} -l ${LS_DAEMON_LOG_FILE} ${LS_OPTS}"
 
 #
 # Function that starts the daemon/service
