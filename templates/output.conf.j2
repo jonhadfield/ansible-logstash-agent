@@ -1,10 +1,3 @@
-input {
-  file {
-    type => "syslog"
-    path => [ "/var/log/messages", "/var/log/syslog", "/var/log/*.log" ]
-  }
-}
-
 output {
   redis { 
     host => [{% for member in logstash_agent_redis_hosts %}"{{ member }}"{% if not loop.last %}, {% endif %}{% endfor %}] 
