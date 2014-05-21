@@ -1,7 +1,7 @@
 ---
 logstash_agent_online_install: false
-logstash_agent_installer_path: /var/installers
-logstash_agent_version: 1.4.0
+logstash_agent_installer_path: /tmp/logstash-1.4.1.tar.gz
+logstash_agent_version: 1.4.1
 logstash_agent_base_install_dir: /apps
 logstash_agent_base_logs_dir: /logs
 logstash_agent_base_data_dir: /data
@@ -11,6 +11,8 @@ logstash_agent_redis_hosts:
 logstash_agent_java_home: /apps/jre1.7.0_55
 logstash_agent_user: root
 logstash_agent_group: root
+logstash_agent_patterns_dir: /tmp/custompatterns/
+logstash_agent_input_config: /tmp/input.conf
 
 # JAVA
 java_online_install: false
@@ -18,3 +20,4 @@ java_installer_path: /var/installers
 java_version: jre1.7.0_55
 java_base_install_dir: /apps
 #java_dist_install: false
+
