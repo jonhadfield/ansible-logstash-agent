@@ -9,14 +9,14 @@ logstash_agent_redis_hosts:
     - redis1
     - redis2
 logstash_agent_java_home: /apps/jre1.7.0_55
-logstash_agent_user: root
-logstash_agent_group: root
+logstash_agent_user: lsagent
+logstash_agent_group: lsagent
 logstash_agent_patterns_dir: /tmp/custompatterns/
-logstash_agent_input_config: /tmp/input.conf
+logstash_agent_input_config: /tmp/config
 
 # JAVA
 java_online_install: false
-java_installer_path: /var/installers
+java_installer_path: /var/installers/jre1.7.0_55.tar.gz
 java_version: jre1.7.0_55
 java_base_install_dir: /apps
 #java_dist_install: false
