@@ -35,10 +35,7 @@
     - restart logstash-agent
 # Copy input configuration
 - name: copy input and filter configuration
-  copy: src={{ logstash_agent_input_config }} dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/conf/input.conf owner={{ logstash_agent_user }} group={{ logstash_agent_user }} mode=0755
-# Copy custom patterns
-- name: copy custom patterns
-  copy: src={{ logstash_agent_patterns_dir }} dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/conf/custompatterns owner={{ logstash_agent_user }} group={{ logstash_agent_group }} mode=0755
+  copy: src={{ logstash_agent_config }} dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} owner={{ logstash_agent_user }} group={{ logstash_agent_user }} mode=0755
   notify:
     - restart logstash-agent
 
