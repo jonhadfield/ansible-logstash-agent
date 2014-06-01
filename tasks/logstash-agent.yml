@@ -48,7 +48,7 @@
   file: path={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} owner={{ logstash_agent_user }} group={{ logstash_agent_group }} recurse=true
 
 - name: create symlink to logstash agent installation
-  file: src={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} path={{ logstash_agent_base_install_dir }}/logstash-agent state=link
+  file: src={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} path={{ logstash_agent_base_install_dir }}/logstash-agent state=link force=yes
 # FIX: Patch for 1.4.0 issue when overriding JAVA_HOME (See https://logstash.jira.com/browse/LOGSTASH-1984)
 - name: patching logstash 1.4.0 bug LOGSTASH-1984
   copy: src=logstash.lib.sh dest={{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}/bin/logstash.lib.sh owner={{ logstash_agent_user }} group={{ logstash_agent_user }} mode=0755
