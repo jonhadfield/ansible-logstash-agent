@@ -1,5 +1,7 @@
 ---
 # Prereqs
+- name: generate teardown script
+  template: src=teardown_logstash-agent.sh.j2 dest={{ logstash_agent_base_install_dir }}/teardown_logstash-agent_{{ logstash_agent_version }}.sh owner=root group=root mode=0750
 - name: create logstash agent group
   group: name={{ logstash_agent_group }} state=present
   when: logstash_agent_group != "root"

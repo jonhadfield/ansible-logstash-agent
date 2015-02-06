@@ -1,0 +1,73 @@
+#!/bin/bash
+check_running () {
+        APP_RUNNING=`ps -ef | grep {{ logstash_agent_base_install_dir }}/logstash-agent | grep -v grep | wc -l`
+        return $APP_RUNNING
+}
+kill_by_path () {
+        SIGNAL=$1
+        ps -ef | grep {{ logstash_agent_base_install_dir }}/logstash-agent | grep -v grep | awk '{print $2}' | xargs kill $SIGNAL
+}
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+        if [ -f /etc/init.d/logstash-agent ]; then
+                echo "Stopping logstash-agent with rc script"
+                /etc/init.d/logstash-agent stop && sleep 5
+        fi
+fi
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+        echo "Stopping logstash-agent with TERM signal"
+        kill_by_path -TERM
+        sleep 3
+fi
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+        echo "Stopping logstash-agent with KILL signal"
+        kill_by_path -KILL
+        sleep 1
+fi
+check_running
+RUNNING=$?
+if [ $RUNNING -gt 0 ]; then
+        echo "Failed to stop application"
+        exit 1
+else
+        echo "Application: logstash-agent stopped"
+fi
+if [ -d {{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} ]; then
+        rm -r {{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }}
+        echo "Application directory: {{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} deleted."
+else
+        echo "Application directory: {{ logstash_agent_base_install_dir }}/logstash-{{ logstash_agent_version }} doesn't exist."
+fi
+
+
+/sbin/chkconfig --del logstash-agent
+echo "Service logstash-agent deleted with chkconfig."
+
+if [ -h {{ logstash_agent_base_install_dir }}/logstash-agent  ]; then
+        rm {{ logstash_agent_base_install_dir }}/logstash-agent
+        echo "Symlink: {{ logstash_agent_base_install_dir }}/logstash-agent deleted."
+else
+        echo "Symlink: {{ logstash_agent_base_install_dir }}/logstash-agent doesn't exist."
+fi
+
+if [ -d {{ logstash_agent_base_data_dir }}/logstash-agent ]; then
+        rm -r {{ logstash_agent_base_data_dir }}/logstash-agent
+        echo "Data directory: {{ logstash_agent_base_data_dir }}/logstash-agent deleted."
+else
+        echo "Data directory: {{ logstash_agent_base_data_dir }}/logstash-agent doesn't exist."
+fi
+
+if [ -f /etc/init.d/logstash-agent ]; then
+        rm /etc/init.d/logstash-agent
+        echo "Startup script: /etc/init.d/logstash-agent deleted."
+else
+        echo "Startup script: /etc/init.d/logstash-agent doesn't exist."
+fi
+rm -- "$0"
+echo "Deleted tear down script."
+exit 0
